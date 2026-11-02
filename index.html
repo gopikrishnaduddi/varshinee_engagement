@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>__TITLE__</title>
+    <meta name="description" content="__DESCRIPTION__" />
+    <meta name="theme-color" content="__THEME__" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="__TITLE__" />
+    <meta property="og:description" content="__DESCRIPTION__" />
+    <meta property="og:image" content="__OG_IMAGE__" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A golden temple gate at sunset with the V &amp; D monogram — the engagement of Varshinee and Dheeraj" />
+    <meta property="og:site_name" content="Varshinee &amp; Dheeraj" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="__TITLE__" />
+    <meta name="twitter:description" content="__DESCRIPTION__" />
+    <meta name="twitter:image" content="__OG_IMAGE__" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <style>
+      /* Critical boot styles: the royal seal shows before any JavaScript arrives */
+      html { background: #241A18; }
+      body { margin: 0; background: #241A18; }
+      #boot {
+        position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
+        background: radial-gradient(120% 80% at 50% 38%, #3a2420 0%, #241A18 55%, #160f0e 100%);
+        color: #F6EEDF; transition: opacity .9s ease, visibility .9s ease;
+      }
+      #boot.is-done { opacity: 0; visibility: hidden; }
+      #boot .boot-inner { display: flex; flex-direction: column; align-items: center; gap: 22px; transform: translateY(-4vh); }
+      #boot .boot-seal { width: min(46vw, 168px); height: auto; filter: drop-shadow(0 10px 30px rgba(0,0,0,.45)); }
+      #boot .boot-seal .ring { animation: boot-turn 28s linear infinite; transform-origin: 100px 100px; }
+      #boot .boot-text {
+        font-family: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif; font-style: italic;
+        font-size: clamp(17px, 4.4vw, 21px); letter-spacing: .04em; color: #e9dcc3; margin: 0;
+      }
+      #boot .boot-line { position: relative; width: min(58vw, 220px); height: 9px; }
+      #boot .boot-line::before {
+        content: ''; position: absolute; left: 0; right: 0; top: 4px; height: 1px; background: rgba(200,164,93,.18);
+      }
+      #boot .boot-fill {
+        position: absolute; left: 0; right: 0; top: 4px; height: 1px; transform-origin: center;
+        background: linear-gradient(90deg, transparent, #C8A45D 18%, #f3dfae 50%, #C8A45D 82%, transparent);
+        transform: scaleX(.08); transition: transform .9s cubic-bezier(.22,.8,.2,1);
+      }
+      #boot[data-step='1'] .boot-fill { transform: scaleX(.42); }
+      #boot[data-step='2'] .boot-fill { transform: scaleX(.74); }
+      #boot[data-step='3'] .boot-fill { transform: scaleX(1); }
+      #boot .boot-gem {
+        position: absolute; top: 1px; left: 50%; width: 7px; height: 7px; margin-left: -3.5px; transform: rotate(45deg);
+        background: linear-gradient(135deg, #f6e3b4, #a98243); box-shadow: 0 0 10px rgba(246,227,180,.6);
+      }
+      @keyframes boot-turn { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { #boot .boot-seal .ring { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <div id="boot" data-step="0" role="status" aria-live="polite">
+      <div class="boot-inner">
+        <svg class="boot-seal" viewBox="0 0 200 200" aria-hidden="true">
+          <defs>
+            <linearGradient id="bg-gold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f6e3b4" />
+              <stop offset=".35" stop-color="#C8A45D" />
+              <stop offset=".6" stop-color="#8f6a30" />
+              <stop offset="1" stop-color="#e8cf95" />
+            </linearGradient>
+            <radialGradient id="bg-wax" cx=".42" cy=".38" r=".7">
+              <stop offset="0" stop-color="#7a2a3a" />
+              <stop offset=".7" stop-color="#591F2B" />
+              <stop offset="1" stop-color="#3b1219" />
+            </radialGradient>
+          </defs>
+          <g class="ring">
+            <circle cx="100" cy="100" r="94" fill="none" stroke="url(#bg-gold)" stroke-width="1" opacity=".7" />
+            <circle cx="100" cy="100" r="90" fill="none" stroke="url(#bg-gold)" stroke-width=".6" stroke-dasharray="1 5" opacity=".9" />
+          </g>
+          <circle cx="100" cy="100" r="80" fill="url(#bg-wax)" />
+          <circle cx="100" cy="100" r="80" fill="none" stroke="url(#bg-gold)" stroke-width="3" />
+          <circle cx="100" cy="100" r="72" fill="none" stroke="url(#bg-gold)" stroke-width=".8" opacity=".8" />
+          <text x="100" y="114" text-anchor="middle" fill="url(#bg-gold)"
+            font-family="'Cormorant Garamond', Georgia, serif" font-size="44" font-style="italic" letter-spacing="1">V &amp; D</text>
+        </svg>
+        <p class="boot-text">Preparing Something Beautiful...</p>
+        <div class="boot-line" aria-hidden="true"><div class="boot-fill"></div><span class="boot-gem"></span></div>
+      </div>
+    </div>
+
+    <noscript>
+      <div style="font-family: Georgia, serif; color: #F6EEDF; text-align: center; padding: 48px 20px; position: relative; z-index: 200; background: #241A18;">
+        <p style="letter-spacing: .25em; font-size: 13px; color: #C8A45D;">TOGETHER WITH THEIR FAMILIES</p>
+        <p>We joyfully invite you to celebrate the engagement of</p>
+        <h1 style="font-weight: 400;">Varshinee Duddi &amp; Dheeraj Naidu Amudala</h1>
+        <p>Thursday, 26 November 2026 · 10:00 AM – 12:00 PM</p>
+        <p>RR Mini Convention Centre · Lunch to follow</p>
+        <p><a style="color: #C8A45D;" href="https://maps.app.goo.gl/ea5c6M7z8bV3u6Dm7">Open in Google Maps</a></p>
+      </div>
+      <style>#boot { display: none !important; }</style>
+    </noscript>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

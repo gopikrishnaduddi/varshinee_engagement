@@ -1,0 +1,17 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Opens straight into Calendar on iPhone, downloads cleanly elsewhere
+[[headers]]
+  for = "/*.ics"
+  [headers.values]
+    Content-Type = "text/calendar; charset=utf-8"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

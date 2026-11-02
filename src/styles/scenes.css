@@ -1,0 +1,109 @@
+/* Scene-specific styling that is clearer as CSS than as utility classes */
+
+/* —— the couple's names —— */
+.couple-names .name-first {
+  font-size: clamp(3rem, 20.5cqi, 7.1rem);
+  padding: 0.04em 0.14em 0.08em;
+  margin-inline: -0.14em;
+  letter-spacing: -0.005em;
+}
+.couple-names .name-last {
+  font-size: clamp(0.8rem, 3.5cqi, 1.12rem);
+  letter-spacing: 0.34em;
+  padding-left: 0.34em; /* balance the tracking so the line centres optically */
+  font-weight: 500;
+}
+.couple-names .amp {
+  font-size: clamp(2.3rem, 11cqi, 3.9rem);
+  padding: 0 0.1em;
+}
+
+.gold-text,
+.gold-ink {
+  text-shadow: none;
+}
+.text-glow .gold-text,
+.gold-text.text-glow {
+  filter: drop-shadow(0 1px 8px rgba(20, 10, 8, 0.55));
+}
+
+/* —— entrance seal —— */
+.seal-glow {
+  opacity: 0;
+  background: radial-gradient(circle, rgba(255, 226, 170, 0.75) 0%, rgba(255, 190, 110, 0.25) 40%, rgba(255, 170, 90, 0) 70%);
+  mix-blend-mode: screen;
+}
+.seal {
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.55));
+}
+
+/* —— small motions —— */
+.cue-bob {
+  animation: cue-bob 2.4s ease-in-out infinite;
+}
+@keyframes cue-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+.sound-bar {
+  animation: sound-bar 1.1s ease-in-out infinite alternate;
+}
+@keyframes sound-bar {
+  from {
+    height: 2px;
+  }
+  to {
+    height: 7px;
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  35% {
+    opacity: 0.78;
+    transform: translate(-50%, -52%) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -49%) scale(1.05);
+  }
+}
+
+@keyframes petal-fall {
+  0% {
+    transform: translate3d(0, -8vh, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(3vw, 22vh, 0) rotate(120deg);
+  }
+  50% {
+    transform: translate3d(-2vw, 52vh, 0) rotate(220deg);
+  }
+  75% {
+    transform: translate3d(4vw, 80vh, 0) rotate(310deg);
+  }
+  100% {
+    transform: translate3d(0, 110vh, 0) rotate(400deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cue-bob,
+  .sound-bar,
+  .fb-petal,
+  .fb-flame {
+    animation: none !important;
+  }
+}
