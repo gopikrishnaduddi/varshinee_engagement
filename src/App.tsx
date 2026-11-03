@@ -21,6 +21,8 @@ import { isOgCapture } from './lib/support.ts'
 import { webglAvailable, worldModule } from './lib/worldLoader.ts'
 import { OgCard } from './components/OgCard.tsx'
 import { VideoBackdrop } from './components/VideoBackdrop.tsx'
+import { GateVideo, type GateStatus, type SealSpot } from './components/GateVideo.tsx'
+import { FlowerShower } from './components/FlowerShower.tsx'
 
 gsap.registerPlugin(ScrollTrigger)
 gsap.config({ nullTargetWarn: false })
@@ -30,6 +32,11 @@ const World = lazy(() => worldModule ?? Promise.reject(new Error('WebGL unavaila
 const RingsOverlay = lazy(() => import('./components/three/RingsOverlay.tsx'))
 
 type Stage = 'gate' | 'entering' | 'inside'
+
+/** Auto-scroll: starts this many milliseconds after the invitation has fully appeared */
+const AUTO_SCROLL_DELAY = 3000
+/** Auto-scroll speed, in screen-heights per second (0.1 = one full screen every 10 seconds) */
+const AUTO_SCROLL_SPEED = 0.2
 
 /** Measure where each camera pose sits along the page's scroll */
 function computeStops() {
@@ -58,10 +65,18 @@ export default function App() {
   const [bootDone, setBootDone] = useState(false)
   const [stage, setStage] = useState<Stage>('gate')
   const [revealing, setRevealing] = useState(false)
+  const [inviteShown, setInviteShown] = useState(false)
   // background video: found & ready? switched on? 3D world retired once the video has taken over?
   const [videoReady, setVideoReady] = useState(false)
   const [videoOn, setVideoOn] = useState(false)
   const [retire3D, setRetire3D] = useState(false)
+  // gate video: found? hidden once the light floods through? where its doors are on screen
+  const [gateStatus, setGateStatus] = useState<GateStatus>(og ? 'missing' : 'pending')
+  const [gateHidden, setGateHidden] = useState(false)
+  const [sealSpot, setSealSpot] = useState<SealSpot | null>(null)
+  const gateStatusRef = useRef(gateStatus)
+  gateStatusRef.current = gateStatus
+  const worldReadyRef = useRef(false)
   const stageRef = useRef<Stage>('gate')
   const lenisRef = useRef<Lenis | null>(null)
 
@@ -71,10 +86,10 @@ export default function App() {
     const fonts = document.fonts?.ready ?? Promise.resolve()
     fonts.then(() => {
       markBoot('fonts')
-      if (mode === 'fallback') finishBoot()
+      if (mode === 'fallback' && gateStatusRef.current !== 'pending') finishBoot()
     })
     // slow connection: show the illustrated temple rather than holding guests on the loader
-    const slow = window.setTimeout(finishBoot, mode === 'webgl' ? 3400 : 1200)
+    const slow = window.setTimeout(finishBoot, 4000)
     const off = onBootFinished(() => setBootDone(true))
     if ('debug' in Object.fromEntries(new URLSearchParams(window.location.search))) {
       Object.assign(window, { __journey: journey, __gsap: gsap, __ScrollTrigger: ScrollTrigger })
@@ -88,8 +103,20 @@ export default function App() {
   const onWorldReady = useCallback(() => {
     markBoot('world')
     setWorldReady(true)
-    finishBoot()
+    worldReadyRef.current = true
+    // if a gate video is still loading, wait for it so the gate doesn't change in front of the guest
+    if (gateStatusRef.current !== 'pending') finishBoot()
   }, [])
+
+  // the gate video's first frame is ready → lift the loader; no gate video → carry on with the 3D gate
+  useEffect(() => {
+    if (gateStatus === 'ready') {
+      markBoot('world')
+      finishBoot()
+    } else if (gateStatus === 'missing' && (mode === 'fallback' || worldReadyRef.current)) {
+      finishBoot()
+    }
+  }, [gateStatus, mode])
 
   // once the 3D world is drawing, let the illustrated stand-in fade away
   useEffect(() => {
@@ -166,6 +193,7 @@ export default function App() {
           journey.entered = true
           notifyJourney()
           setVideoOn(true)
+          setGateHidden(true)
           setRevealing(true)
         })
       return
@@ -179,6 +207,8 @@ export default function App() {
       .to('.seal-left', { xPercent: -46, rotate: -9, autoAlpha: 0, duration: 1.3, ease: 'power3.in' }, 0.42)
       .to('.seal-right', { xPercent: 46, rotate: 9, autoAlpha: 0, duration: 1.3, ease: 'power3.in' }, 0.42)
       .to('.seal-glow', { opacity: 0, duration: 0.9 }, 0.95)
+      // with a gate video: walk slowly toward the doors as the light grows
+      .to('.gate-video', { scale: 1.22, duration: 2.6, ease: 'power2.in' }, 0.45)
       // a breath of anticipation, then the doors swing inward
       .to(journey, { doors: -0.7, duration: 0.42, ease: 'power2.out' }, 0.3)
       .to(journey, { doors: 1, duration: 2.9, ease: 'none' }, 0.72)
@@ -190,7 +220,10 @@ export default function App() {
       }, undefined, 1.25)
       .to('.light-flood', { opacity: 0.92, duration: 1.05, ease: 'power2.in' }, 1.7)
       .to(journey, { enter: 1, duration: 3.1, ease: 'none' }, 1.05)
-      .call(() => setVideoOn(true), undefined, 2.45)
+      .call(() => {
+        setVideoOn(true)
+        setGateHidden(true)
+      }, undefined, 2.45)
       .to('.gate', { autoAlpha: 0, duration: 0.6 }, 2.6)
       .to(journey, { light: 0, duration: 1.6, ease: 'power2.out' }, 2.75)
       .to('.light-flood', { opacity: 0, duration: 1.6, ease: 'power2.out' }, 2.8)
@@ -262,6 +295,53 @@ export default function App() {
     const t = window.setTimeout(() => setRetire3D(true), 1600)
     return () => window.clearTimeout(t)
   }, [showVideo])
+  // both videos are here: the 3D temple is never seen, so stop drawing it to save battery
+  useEffect(() => {
+    if (gateStatus === 'ready' && videoReady) setRetire3D(true)
+  }, [gateStatus, videoReady])
+
+  // while the gate video shows, the seal and the light follow its doors
+  const useGateSeal = gateStatus === 'ready' && sealSpot !== null && !og
+  const sealVars = useGateSeal
+    ? ({ '--seal-x': `${sealSpot.x}px`, '--seal-y': `${sealSpot.y}px`, '--door-half': `${sealSpot.half}px` } as React.CSSProperties)
+    : undefined
+
+  /* ---------- auto-scroll: glide slowly to the end; any touch, click, wheel or key hands control back ---------- */
+  useEffect(() => {
+    if (!inviteShown || stage !== 'inside' || reduced) return
+    let raf = 0
+    let stopped = false
+    const events = ['wheel', 'touchstart', 'pointerdown', 'keydown'] as const
+    const stop = () => {
+      stopped = true
+      window.clearTimeout(timer)
+      cancelAnimationFrame(raf)
+      events.forEach((ev) => window.removeEventListener(ev, stop, true))
+    }
+    events.forEach((ev) => window.addEventListener(ev, stop, { capture: true, passive: true }))
+    const timer = window.setTimeout(() => {
+      let y = window.scrollY
+      const began = performance.now()
+      let last = began
+      const tick = (now: number) => {
+        if (stopped) return
+        const dt = Math.min(0.1, (now - last) / 1000)
+        last = now
+        const max = document.documentElement.scrollHeight - window.innerHeight
+        const easeIn = Math.min(1, (now - began) / 2500) // gentle start
+        const easeOut = Math.max(0.12, Math.min(1, (max - y) / (window.innerHeight * 0.8))) // soft arrival
+        y = Math.min(max, y + AUTO_SCROLL_SPEED * window.innerHeight * dt * easeIn * easeIn * easeOut)
+        if (lenisRef.current) lenisRef.current.scrollTo(y, { immediate: true, force: true })
+        else window.scrollTo(0, y)
+        if (y >= max - 0.5) stop()
+        else raf = requestAnimationFrame(tick)
+      }
+      raf = requestAnimationFrame(tick)
+    }, AUTO_SCROLL_DELAY)
+    return stop
+  }, [inviteShown, stage, reduced])
+
+  const onInviteShown = useCallback(() => setInviteShown(true), [])
 
   const navigate = useCallback(
     (id: string) => {
@@ -291,15 +371,28 @@ export default function App() {
             className="absolute inset-0 transition-opacity duration-[1200ms]"
             style={{ opacity: mode === 'webgl' && worldReady ? 0 : 1 }}
           >
-            <SceneFallback ownsSeal={mode === 'fallback' || !worldReady} inside={inside} reduced={reduced} />
+            <SceneFallback ownsSeal={(mode === 'fallback' || !worldReady) && gateStatus !== 'ready'} inside={inside} reduced={reduced} />
           </div>
+        )}
+        {!og && stage !== 'inside' && gateStatus !== 'missing' && (
+          <GateVideo hidden={gateHidden} reduced={reduced} onStatus={setGateStatus} onSeal={setSealSpot} />
         )}
         {!og && <VideoBackdrop show={showVideo} reduced={reduced} onStatus={setVideoReady} />}
       </div>
       <div className="stage-dim" aria-hidden="true" />
       <div className="stage-vignette" aria-hidden="true" />
       <div className="film-grain" aria-hidden="true" />
-      <div className="light-flood" aria-hidden="true" />
+      <div
+        className="light-flood"
+        aria-hidden="true"
+        style={
+          useGateSeal
+            ? {
+                background: `radial-gradient(40% 55% at ${sealSpot.x}px ${sealSpot.y}px, rgba(255,248,228,1) 0%, rgba(255,214,150,0.85) 30%, rgba(240,160,80,0.4) 60%, rgba(120,60,30,0) 100%)`,
+              }
+            : undefined
+        }
+      />
       {showVideo && webglAvailable && !og && (
         <Suspense fallback={null}>
           <RingsOverlay />
@@ -310,11 +403,16 @@ export default function App() {
         <OgCard />
       ) : (
         <>
-          {stage !== 'inside' && <TempleEntrance onEnter={enter} ready={bootDone} />}
+          {stage !== 'inside' && (
+            <div className="contents" style={sealVars}>
+              <TempleEntrance onEnter={enter} ready={bootDone} />
+            </div>
+          )}
+          <FlowerShower play={revealing && !reduced} />
           <SoundControl />
           <JourneyNav visible={stage === 'inside'} onNavigate={navigate} />
           <main id="main" className="relative z-10" inert={!revealing}>
-            <InvitationReveal revealing={revealing} reduced={reduced} />
+            <InvitationReveal revealing={revealing} reduced={reduced} onRevealed={onInviteShown} />
             <MandapamScene active={inside} reduced={reduced} />
             <DateReveal active={inside} reduced={reduced} />
             <GoldenRings active={inside} reduced={reduced} />
