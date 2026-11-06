@@ -23,6 +23,7 @@ import { OgCard } from './components/OgCard.tsx'
 import { VideoBackdrop } from './components/VideoBackdrop.tsx'
 import { GateVideo, type GateStatus, type SealSpot } from './components/GateVideo.tsx'
 import { FlowerShower } from './components/FlowerShower.tsx'
+import { CouplePortraits } from './components/CouplePortraits.tsx'
 
 gsap.registerPlugin(ScrollTrigger)
 gsap.config({ nullTargetWarn: false })
@@ -33,10 +34,12 @@ const RingsOverlay = lazy(() => import('./components/three/RingsOverlay.tsx'))
 
 type Stage = 'gate' | 'entering' | 'inside'
 
+/** The gate opens by itself this many milliseconds after it appears (a tap opens it sooner) */
+const AUTO_ENTER_DELAY = 1000
 /** Auto-scroll: starts this many milliseconds after the invitation has fully appeared */
-const AUTO_SCROLL_DELAY = 3000
+const AUTO_SCROLL_DELAY = 2000
 /** Auto-scroll speed, in screen-heights per second (0.1 = one full screen every 10 seconds) */
-const AUTO_SCROLL_SPEED = 0.2
+const AUTO_SCROLL_SPEED = 0.17
 
 /** Measure where each camera pose sits along the page's scroll */
 function computeStops() {
@@ -231,6 +234,33 @@ export default function App() {
       .call(finishEntry, undefined, 4.25)
   }, [reduced, finishEntry])
 
+  /* ---------- auto-enter: "Enter the Celebration" presses itself a few seconds after the gate appears ---------- */
+  useEffect(() => {
+    if (!bootDone || og || stage !== 'gate') return
+    let timer = 0
+    const start = () => {
+      window.clearTimeout(timer)
+      timer = window.setTimeout(() => {
+        if (document.hidden || stageRef.current !== 'gate') return
+        // a gentle press on the button, so guests see what happened, then the doors open
+        gsap
+          .timeline({ onComplete: enter })
+          .to('.gate-button', { scale: 0.94, duration: 0.16, ease: 'power2.out' })
+          .to('.gate-button', { scale: 1, duration: 0.22, ease: 'power2.out' })
+      }, AUTO_ENTER_DELAY)
+    }
+    // if the link was opened in a background tab, wait until the guest is actually looking at the gate
+    const onVisible = () => {
+      if (!document.hidden) start()
+    }
+    if (!document.hidden) start()
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [bootDone, og, stage, enter])
+
   /* ---------- once inside: scroll drives the camera ---------- */
   useEffect(() => {
     if (stage !== 'inside') return
@@ -413,6 +443,7 @@ export default function App() {
           <JourneyNav visible={stage === 'inside'} onNavigate={navigate} />
           <main id="main" className="relative z-10" inert={!revealing}>
             <InvitationReveal revealing={revealing} reduced={reduced} onRevealed={onInviteShown} />
+            <CouplePortraits active={inside} reduced={reduced} />
             <MandapamScene active={inside} reduced={reduced} />
             <DateReveal active={inside} reduced={reduced} />
             <GoldenRings active={inside} reduced={reduced} />

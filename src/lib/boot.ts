@@ -18,20 +18,29 @@ export function markBoot(step: Milestone) {
   if (node) node.dataset.step = String(reached.size)
 }
 
+/** The marigold-curtain opening always plays to the end (curtain parted, names written), even on a fast connection */
+const MIN_SHOW_MS = 3700
+const MIN_SHOW_REDUCED_MS = 900
+let finishing = false
+
 export function finishBoot() {
-  if (finished) return
-  finished = true
-  const node = el()
-  if (node) {
-    node.dataset.step = '3'
-    // let the line complete before the seal lifts
-    window.setTimeout(() => {
-      node.classList.add('is-done')
-      node.setAttribute('aria-hidden', 'true')
-      window.setTimeout(() => node.remove(), 1000)
-    }, 260)
-  }
-  doneListeners.forEach((fn) => fn())
+  if (finishing) return
+  finishing = true
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches || /[?&]reducedmotion/.test(location.search)
+  const wait = Math.max(0, (reduced ? MIN_SHOW_REDUCED_MS : MIN_SHOW_MS) - performance.now())
+  window.setTimeout(() => {
+    finished = true
+    const node = el()
+    if (node) {
+      node.dataset.step = '3'
+      window.setTimeout(() => {
+        node.classList.add('is-done')
+        node.setAttribute('aria-hidden', 'true')
+        window.setTimeout(() => node.remove(), 1300)
+      }, 200)
+    }
+    doneListeners.forEach((fn) => fn())
+  }, wait)
 }
 
 export function isBootFinished() {

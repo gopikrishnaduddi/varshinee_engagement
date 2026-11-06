@@ -33,7 +33,7 @@ export function InvitationReveal({ revealing, reduced, onRevealed }: Props) {
         .to(q('.corner path'), { strokeDashoffset: 0, duration: 1.8, ease: 'power2.inOut', stagger: 0.02 }, 0.3)
         .from(q('.corner'), { autoAlpha: 0, duration: 1.2, stagger: 0.08 }, 0.3)
         .from(q('.crest'), { autoAlpha: 0, y: 10, scale: 0.8, duration: 1 }, 0.6)
-        .from(q('.inv-families'), { autoAlpha: 0, letterSpacing: '0.7em', duration: 1.6, ease: 'power2.out' }, 0.75)
+        .from(q('.inv-hosts > span'), { autoAlpha: 0, y: 10, duration: 1.1, stagger: 0.22 }, 0.75)
         .from(q('.inv-invite > span'), { autoAlpha: 0, y: 14, duration: 1.1, stagger: 0.32 }, 1.35)
         // names arrive as if written by hand, left to right
         .fromTo(
@@ -119,10 +119,13 @@ export function InvitationReveal({ revealing, reduced, onRevealed }: Props) {
 
         <div className="relative" style={{ containerType: 'inline-size' }}>
           <KalashaCrest dark className="crest mx-auto mb-4 h-11 w-11 sm:h-12 sm:w-12" />
-          <p className="inv-families eyebrow text-maroon">{e.wording.families}</p>
-          <p className="inv-invite mt-5 font-display text-[clamp(1.2rem,1.05rem+0.8vw,1.55rem)] italic leading-snug text-ink">
-            <span className="block">{e.wording.inviteLead}</span>
-            <span className="block text-ink/80">{e.wording.inviteRest}</span>
+          <p className="inv-hosts font-ceremonial text-[clamp(0.95rem,0.86rem+0.45vw,1.18rem)] font-semibold leading-[1.5] tracking-[0.06em] text-maroon">
+            <span className="block">{e.hosts.names[0]}</span>
+            <span className="block font-display text-[1.3em] font-medium italic leading-[1.1] text-brass">&amp;</span>
+            <span className="block">{e.hosts.names[1]}</span>
+          </p>
+          <p className="inv-invite mt-4 text-balance font-display text-[clamp(1.2rem,1.05rem+0.8vw,1.55rem)] italic leading-snug text-ink">
+            <span className="block">{e.hosts.line}</span>
           </p>
 
           <div className="mt-7 sm:mt-9">

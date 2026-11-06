@@ -10,6 +10,19 @@ export const eventDetails = {
     monogram: { left: 'V', right: 'D' },
   },
 
+  
+  /** The couple's portraits, shown just after the invitation card. Save the pictures at these paths in public/ */
+  couplePhotos: {
+    bride: { src: '/couple/bride.jpeg', label: 'The Bride' },
+    groom: { src: '/couple/groom.jpeg', label: 'The Groom' },
+  },
+
+  /** The bride's parents — shown at the top of the invitation card, above the couple's names */
+  hosts: {
+    names: ['Smt. Duddi KAVITHA', 'Duddi MAHENDRA PRASAD'],
+    line: 'Invites on Occasion of Engagement of their Daughter',
+  },
+
   eventName: 'Engagement Ceremony',
 
   date: {

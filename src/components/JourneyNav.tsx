@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const SCENES = [
   { id: 'invitation', label: 'Invitation' },
+  { id: 'couple', label: 'The Couple' },
   { id: 'mandapam', label: 'Mandapam' },
   { id: 'date', label: 'The Date' },
   { id: 'rings', label: 'Two Hearts' },
