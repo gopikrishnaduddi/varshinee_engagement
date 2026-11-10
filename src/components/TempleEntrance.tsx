@@ -79,6 +79,7 @@ export function TempleEntrance({ onEnter, ready }: Props) {
         <div className="seal-glow absolute inset-[-30%] rounded-full" aria-hidden="true" />
         <Monogram split className="h-full w-full" />
       </div>
+      
 
       <div
         className="gate-ui absolute inset-x-0 bottom-0 flex flex-col items-center px-6 text-center"
@@ -89,6 +90,7 @@ export function TempleEntrance({ onEnter, ready }: Props) {
             'linear-gradient(0deg, rgba(24,14,12,0.92) 0%, rgba(24,14,12,0.78) 34%, rgba(24,14,12,0.35) 70%, rgba(24,14,12,0) 100%)',
         }}
       >
+        
         <p className="gate-quote font-display text-ivory text-glow text-[clamp(1.35rem,1.1rem+1.4vw,2.05rem)] italic leading-snug" style={{ opacity: 0 }}>
           “{e.wording.opening}”
         </p>

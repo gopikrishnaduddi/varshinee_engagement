@@ -34,6 +34,7 @@ export function JourneyNav({ visible, onNavigate }: { visible: boolean; onNaviga
       className="fixed right-5 top-1/2 z-30 hidden -translate-y-1/2 transition-opacity duration-1000 lg:block"
       style={{ opacity: visible ? 1 : 0, pointerEvents: visible ? 'auto' : 'none' }}
     >
+      
       <ol className="flex flex-col items-end gap-4">
         {SCENES.map((s) => {
           const on = active === s.id

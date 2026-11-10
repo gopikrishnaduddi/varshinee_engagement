@@ -4,8 +4,8 @@
  */
 export const eventDetails = {
   couple: {
-    partnerOne: { first: 'Varshinee', last: 'Duddi', full: 'Varshinee Duddi' },
-    partnerTwo: { first: 'Dheeraj', last: 'Naidu Amudala', full: 'Dheeraj Naidu Amudala' },
+    partnerOne: { first: 'Varshinee', last: '', full: 'Varshinee' },
+    partnerTwo: { first: 'Dheeraj', last: '', full: 'Dheeraj' },
     short: 'Varshinee & Dheeraj',
     monogram: { left: 'V', right: 'D' },
   },
